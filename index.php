@@ -127,7 +127,7 @@ document.addEventListener("DOMContentLoaded", function() {
         } else {
             document.getElementById("confirm_password").setCustomValidity("");
             alert("Contraseña incluida");
-            self.submit(); // Enviar el formulario programáticamente
+            self.submit(); // Enviar el formulario_ programáticamente
         }
     });
 

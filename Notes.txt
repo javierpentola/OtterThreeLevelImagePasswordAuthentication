@@ -1,0 +1,24 @@
+Bugs to fix:
+
+Menu shows the info saved in setup.php.
+
+Things to do.
+
+finish imageselector.php
+
+
+
+
+
+
+-----------
+
+<div style="text-align: center; border: 1px solid #ccc; padding: 10px;">
+    <p>
+        index.php ----------> colorselector.php ----------> imageselector.php ----------> menu.php <br>
+        |                      |                           |                          | <br>
+        v                      v                           v                          v <br>
+        Guarda info en         Guarda info en             Guarda info en           Comprueba la info <br>
+        setup.php               setup.php   FFF                setup.php                 en setup.php
+    </p>
+</div>

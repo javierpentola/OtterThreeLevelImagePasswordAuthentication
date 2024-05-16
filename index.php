@@ -1,12 +1,12 @@
 <?php
-// Función para borrar el contenido de setup.php
+// Función para borrar el contenido de setup.php relacionado con la contraseña
 function clearSetupFile() {
-    file_put_contents("setup.php", "");
+    file_put_contents("setup.php", "<?php\n");
 }
 
 // Verificar si se envió el formulario
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Borrar el contenido de setup.php
+    // Borrar el contenido relacionado con la contraseña en setup.php
     clearSetupFile();
 
     // Obtener la contraseña proporcionada por el usuario
@@ -16,10 +16,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $encryptedPassword = encryptPassword($password);
 
     // Guardar la contraseña encriptada en el archivo setup.php
-    file_put_contents("setup.php", "<?php \$encryptedPassword = '" . $encryptedPassword . "'; ?>");
+    file_put_contents("setup.php", "\$encryptedPassword = '" . $encryptedPassword . "';\n", FILE_APPEND);
 
-    // Redirigir al usuario a menu.php
-    header("Location: menu.php");
+    // Redirigir al usuario a colorselector.php
+    header("Location: colorselector.php");
     exit; // Terminar el script para evitar que se siga ejecutando después de la redirección
 }
 
@@ -113,43 +113,38 @@ function encryptPassword($password) {
     </div>
 
     <script>
-document.addEventListener("DOMContentLoaded", function() {
-    var form = document.querySelector("form");
-    form.addEventListener("submit", function(event) {
-        event.preventDefault(); // Detener el envío para mostrar el alert
-        var self = this; // Guardar referencia al formulario para usar después del alert
+    document.addEventListener("DOMContentLoaded", function() {
+        var form = document.querySelector("form");
+        form.addEventListener("submit", function(event) {
+            event.preventDefault(); // Detener el envío para mostrar el alert
+            var self = this; // Guardar referencia al formulario para usar después del alert
 
-        // Verificar si las contraseñas coinciden antes de mostrar el alert y enviar el formulario
-        if (document.getElementById("password").value !== document.getElementById("confirm_password").value) {
-            document.getElementById("confirm_password").setCustomValidity("Las contraseñas no coinciden");
-            document.getElementById("confirm_password").reportValidity();
-            return; // No continuar si las contraseñas no coinciden
-        } else {
-            document.getElementById("confirm_password").setCustomValidity("");
-            alert("Contraseña incluida");
-            self.submit(); // Enviar el formulario_ programáticamente
+            // Verificar si las contraseñas coinciden antes de mostrar el alert y enviar el formulario
+            if (document.getElementById("password").value !== document.getElementById("confirm_password").value) {
+                document.getElementById("confirm_password").setCustomValidity("Las contraseñas no coinciden");
+                document.getElementById("confirm_password").reportValidity();
+                return; // No continuar si las contraseñas no coinciden
+            } else {
+                document.getElementById("confirm_password").setCustomValidity("");
+                alert("Contraseña incluida");
+                self.submit(); // Enviar el formulario programáticamente
+            }
+        });
+
+        var password = document.getElementById("password");
+        var confirm_password = document.getElementById("confirm_password");
+
+        function validatePassword() {
+            if (password.value != confirm_password.value) {
+                confirm_password.setCustomValidity("Las contraseñas no coinciden");
+            } else {
+                confirm_password.setCustomValidity("");
+            }
         }
+
+        password.onchange = validatePassword;
+        confirm_password.onkeyup = validatePassword;
     });
-
-    var password = document.getElementById("password");
-    var confirm_password = document.getElementById("confirm_password");
-
-    function validatePassword() {
-        if (password.value != confirm_password.value) {
-            confirm_password.setCustomValidity("Las contraseñas no coinciden");
-        } else {
-            confirm_password.setCustomValidity("");
-        }
-    }
-
-    password.onchange = validatePassword;
-    confirm_password.onkeyup = validatePassword;
-});
-</script>
-
-
-
-
-
+    </script>
 </body>
 </html>

@@ -1,128 +1,170 @@
 <?php
-// Incluir el archivo setup.php que contiene la contraseña encriptada
+// Incluir el archivo setup.php que contiene la contraseña encriptada, el color codificado y la imagen seleccionada
 include 'setup.php';
 
 // Función para desencriptar una contraseña
 function decryptPassword($encryptedPassword) {
-    // Clave de encriptación (¡cambia esto por la misma clave utilizada en index.php!)
     $encryptionKey = "clave_secreta";
-
-    // Algoritmo de encriptación
     $cipher = "aes-256-cbc";
-
-    // Obtener la contraseña y el IV del valor encriptado
     list($encrypted, $iv) = explode("::", base64_decode($encryptedPassword), 2);
-
-    // Desencriptar la contraseña
-    $decrypted = openssl_decrypt($encrypted, $cipher, $encryptionKey, 0, $iv);
-
-    // Retornar la contraseña desencriptada
-    return $decrypted;
+    return openssl_decrypt($encrypted, $cipher, $encryptionKey, 0, $iv);
 }
 
 // Verificar si se envió el formulario
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Obtener la contraseña proporcionada por el usuario
     $password = $_POST["password"];
+    $color = $_POST["color"];
+    $image = $_POST["selectedImage"]; // Obtener el nombre de la imagen seleccionada
 
-    // Desencriptar la contraseña almacenada en setup.php
     $decryptedPassword = decryptPassword($encryptedPassword);
+    $isColorVerified = ($color === $colorcode);
+    $isImageVerified = ($image === $selectedImage);
 
-    // Verificar si la contraseña ingresada coincide con la contraseña almacenada
-    if ($password === $decryptedPassword) {
-        // Contraseña correcta, redirigir al usuario a index.php
+    // Mensajes de depuración
+    echo "Contraseña ingresada: " . htmlspecialchars($password) . "<br>";
+    echo "Contraseña desencriptada: " . htmlspecialchars($decryptedPassword) . "<br>";
+    echo "Color ingresado: " . htmlspecialchars($color) . "<br>";
+    echo "Color guardado: " . htmlspecialchars($colorcode) . "<br>";
+    echo "Color verificado: " . ($isColorVerified ? "true" : "false") . "<br>";
+    echo "Imagen ingresada: " . htmlspecialchars($image) . "<br>";
+    echo "Imagen esperada: " . htmlspecialchars($selectedImage) . "<br>";
+    echo "Imagen verificada: " . ($isImageVerified ? "true" : "false") . "<br>";
+
+    if ($password === $decryptedPassword && $isColorVerified && $isImageVerified) {
         header("Location: index.php");
-        exit; // Terminar el script para evitar que se siga ejecutando después de la redirección
+        exit;
     } else {
-        // Contraseña incorrecta, mostrar mensaje de error
-        $errorMessage = "Contraseña incorrecta. Inténtalo de nuevo.";
+        $errorMessage = "Información incorrecta. Inténtalo de nuevo.";
     }
 }
 ?>
 
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menu</title>
-    <!-- Estilos CSS -->
-
-<style>
-    /* Estilos CSS */
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f0f0f0;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-    }
-    .container {
-        background-color: #fff;
-        border-radius: 8px;
-        padding: 20px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        width: 300px;
-    }
-    .form-group {
-        margin-bottom: 20px;
-    }
-    .form-group label {
-        display: block;
-        font-weight: bold;
-        margin-bottom: 5px;
-    }
-    .form-group input {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-    }
-    .form-group button {
-        width: 100%;
-        padding: 10px;
-        background-color: #007bff;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-    .form-group button:hover {
-        background-color: #0056b3;
-    }
-</style>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            width: 80%;
+            max-width: 1024px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .field {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="password"], input[type="color"], input[type="file"] {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .submit-button {
+            background-color: #007bff;
+            border: none;
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            border-radius: 4px;
+        }
+        .submit-button:hover {
+            background-color: #0056b3;
+        }
+        .error-message {
+            color: red;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .gallery img {
+            cursor: pointer;
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border: 2px solid transparent;
+            transition: border-color 0.3s;
+        }
+        .gallery img.selected {
+            border-color: blue;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h2>Menu</h2>
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-            <div class="form-group">
-                <label for="password">Enter Password:</label>
-                <input type="password" id="password" name="password" required>
+        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" enctype="multipart/form-data">
+            <div class="field">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" placeholder="Introduce tu contraseña" required>
             </div>
-            <div class="form-group">
-                <button type="submit">Submit</button>
+            <div class="field">
+                <label for="color">Selector de color</label>
+                <input type="color" id="color" name="color" required>
             </div>
+            <div class="field">
+                <label for="image">Selector de imagen</label>
+                <div class="gallery">
+                    <?php
+                    $imageDir = "C:/xampp/htdocs/website/images";
+                    $images = glob($imageDir . "/*.jpg");
+
+                    foreach ($images as $image) {
+                        $imageName = basename($image);
+                        echo "<img src='images/$imageName' data-name='$imageName' alt='$imageName'>";
+                    }
+                    ?>
+                </div>
+                <input type="hidden" id="selectedImage" name="selectedImage">
+            </div>
+            <?php if (isset($errorMessage)): ?>
+                <div class="error-message"><?php echo $errorMessage; ?></div>
+            <?php endif; ?>
+            <button type="submit" class="submit-button">Enviar</button>
         </form>
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // JavaScript para mostrar un mensaje de alerta si la contraseña es correcta
-            <?php if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["password"])): ?>
-                var password = "<?php echo $_POST["password"]; ?>";
-                var encryptedPassword = "<?php echo $encryptedPassword; ?>";
-                if (password === encryptedPassword) {
-                    alert("Contraseña correcta. Redirigiendo a la página de inicio.");
-                    window.location.href = "index.php";
-                } else {
-                    alert("Contraseña incorrecta. Inténtalo de nuevo.");
-                }
-            <?php endif; ?>
+        document.addEventListener('DOMContentLoaded', () => {
+            const images = document.querySelectorAll('.gallery img');
+            let selectedImage = null;
+
+            images.forEach(img => {
+                img.addEventListener('click', () => {
+                    images.forEach(i => i.classList.remove('selected'));
+                    img.classList.add('selected');
+                    selectedImage = img.dataset.name;
+                    document.getElementById('selectedImage').value = selectedImage;
+                });
+            });
         });
     </script>
 </body>
